@@ -7,13 +7,15 @@
 - JSESSIONID
 - stu_token
 
-## 1.获取方法为：
+## 1.获取所需参数：
 
-1. 先访问 http://regi.zju.edu.cn/classes 登录账号后后打开开发者工具(Chrome为F12快捷键) 然后将Application菜单栏下Storage->cookies中的stu_token和 JSESSIONID 对应输入为本程序的参数
+> 选择下列一种即可，推荐第一种
+
+1. 点击浏览器地址栏前的安全性图标，选择Cookies，然后按如下操作
 
 ![](https://i.loli.net/2021/08/23/BGwCz3AcpaSlDkE.png)
 
-2. 点击浏览器地址栏前的安全性图标，选择Cookies，然后按如下操作
+2. 先访问 http://regi.zju.edu.cn/classes 登录账号后后打开开发者工具(Chrome为F12快捷键) 然后将Application菜单栏下Storage->cookies中的stu_token和 JSESSIONID 对应输入为本程序的参数
 
 ![](https://i.loli.net/2021/08/23/LiudKFgpBrNkqn3.png)
 
