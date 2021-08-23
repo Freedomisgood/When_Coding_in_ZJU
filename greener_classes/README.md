@@ -1,6 +1,6 @@
-#  ZJU迎新课程速过
+#  ZJU-新生报到服务-适应性课程速过
 
->  ZJU迎新系统中需要完成的课程任务： http://regi.zju.edu.cn/classes
+>  ZJU迎新系统中需要完成的课程任务： http://regi.zju.edu.cn/classes (首页->报到服务->适应性课程)
 
 需要填写的参数有两个：（需要从Cookies中获取）
 
