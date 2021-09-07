@@ -1,6 +1,5 @@
 import json
 import time
-import sys
 from loginUtils import SSOLogin
 
 

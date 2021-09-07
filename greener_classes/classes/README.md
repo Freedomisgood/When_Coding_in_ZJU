@@ -7,7 +7,9 @@
 - JSESSIONID
 - stu_token
 
-## 1.获取所需参数：
+## 方一(旧版)：
+
+### 1.获取所需参数：
 
 > 选择下列一种即可，推荐第一种
 
@@ -19,8 +21,12 @@
 
 ![](https://i.loli.net/2021/08/23/LiudKFgpBrNkqn3.png)
 
-## 2.执行程序
+### 2.执行程序
 
 在脚本所在目录打开命令行，输入：` python zju_guide_class.py -s 获取的JSESSIONID -t  获取的STU_TOKEN`
 
 ![](https://i.loli.net/2021/08/23/VtS7DH2PyGM8hsc.png)
+
+## 方二(2021年9月7日更新)：
+
+运行通过统一认证平台登录获得信息从而运行的程序: `python guide_class_login.py`
