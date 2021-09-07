@@ -1,9 +1,6 @@
 import requests
-import json
 import re
-import datetime
 import time
-import sys
 import urllib.parse as urlparse
 
 
@@ -15,6 +12,7 @@ class LoginError(Exception):
 
 class ZJULogin(object):
     """
+    统一认证平台的登录使用的ZJU-nCov-Hitcarder的开源代码，感谢这位同学开源对RSA加密的贡献
     Attributes:
         username: (str) 浙大统一认证平台用户名（一般为学号）
         password: (str) 浙大统一认证平台密码
@@ -49,7 +47,7 @@ class ZJULogin(object):
         # check if login successfully
         if '统一身份认证' in res.content.decode():
             raise LoginError('登录失败，请核实账号密码重新登录')
-        print("登录成功")
+        print("统一认证平台登录成功")
         return self.sess
 
     def _rsa_encrypt(self, password_str, e_str, M_str):
@@ -62,11 +60,15 @@ class ZJULogin(object):
 
 
 class SSOLogin(ZJULogin):
+    """
+    完成测试需要获得token
+    """
     def sso_login(self):
         """
         获得token，并在请求头上加上token
         Returns: token
         """
+
         def substract_query_params(url):
             parsed = urlparse.urlparse(url)
             querys = urlparse.parse_qs(parsed.query)

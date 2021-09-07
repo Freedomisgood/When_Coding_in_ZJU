@@ -71,6 +71,7 @@ class RightTest(SSOLogin):
         return response.status_code == 200
 
     def run(self):
+        print("~~~~~当前完成权益测试~~~~~")
         self.sso_login()
         # 是否还有题目未做完
         reminded = self.judge_has_exams()
@@ -117,6 +118,7 @@ class SecurityTest(SSOLogin):
         return response.status_code == 200
 
     def run(self):
+        print("~~~~~当前完成安全测试~~~~~")
         self.sso_login()
         exam_ids = self.get_all_exams()
         exams = self.get_all_exams_info(exam_ids)
@@ -125,9 +127,15 @@ class SecurityTest(SSOLogin):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("请输入账号、密码")
-    username, password = sys.argv[1], sys.argv[2]
+    # if len(sys.argv) < 2:
+    #     print("请输入学号、密码")
+    # username, password = sys.argv[1], sys.argv[2]
+    in_str = input("请输入学号、密码(空格分割):").split()
+    if len(in_str) == 2:
+        username, password = in_str
+    else:
+        raise Exception("请分别输入学号与密码(空格分割)")
+
     rt = RightTest(username, password)
     rt.run()
     st = SecurityTest(username, password)
