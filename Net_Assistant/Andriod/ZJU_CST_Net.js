@@ -26,19 +26,6 @@ function getUserConfig() {
     var ctx = storages.create(storageName);
     var userConfig = {}
     if (!ctx.contains("account")) {
-        // const options = ["NJUPT", "NJUPT-CMCC", "NJUPT-CHINANET"];
-        // const suffix = ["", "@cmcc", "@njxy"];
-        // var i = dialogs.singleChoice("想要连接的网络", options);
-        // if (i >= 0) {
-        //     toast("账号: " + user + "\n" +
-        //         "ESSID: " + options[i]
-        //     );
-        // } else {
-        //     toast("您取消了选择");
-        //     exit();
-        // }
-        // var carrier = suffix[i];
-
         var user = rawInput("请输入校园网账号");
         var pwd = rawInput("请输入校园网密码");
         if (user !== null && pwd !== null && user !== "") {
@@ -70,12 +57,12 @@ function login(userConfig){
                 toast("登录失败!~检查是否连接校园网");
                 return;
             }
-            text = res.body.string()
-            if ( !isNaN(text)){
+            text_result = res.body.string()
+            if ( !isNaN(text_result)){
                 toast("登录成功!~");
-            }else if (text == "online_num_error"){
+            }else if (text_result === "online_num_error"){
                 toast("登录失败, 在线设备超时!~");
-            }else if (text == "username_error"){
+            }else if (text_result === "username_error"){
                 toast("登录失败, 账号密码错误!~");
                 storages.remove(storageName)
             }else{      // NTEy为配置问题
