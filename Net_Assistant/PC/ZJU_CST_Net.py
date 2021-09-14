@@ -3,7 +3,6 @@ import hashlib
 import json
 import os
 
-
 headers = {
     'Connection': 'keep-alive',
     'Pragma': 'no-cache',
@@ -22,13 +21,14 @@ def get_password(in_s):
     res = hashlib.md5(s).hexdigest()
     start_index = 8
     length = 16
-    return res[start_index: length+start_index]
+    return res[start_index: length + start_index]
 
 
 class ResultData:
     """
     解析文本=>返回结果类
     """
+
     def __init__(self, msg, code):
         self.msg = msg
         self.code = code
@@ -64,14 +64,13 @@ class ZJUOnline:
         # 10784662880456   ==> 登录成功显示
         """
         data = {
-          'username': stu_id,
-          'password': get_password(pwd),
-          'drop': '0',
-          'type': '1',
-          'n': '100'
+            'username': stu_id,
+            'password': get_password(pwd),
+            'drop': '0',
+            'type': '1',
+            'n': '100'
         }
         response = requests.post('http://192.0.0.6/cgi-bin/do_login', headers=headers, data=data, verify=False)
-        print(response.text)
         return ResultData.match(response.text)
 
     @staticmethod
@@ -82,37 +81,44 @@ class ZJUOnline:
         # logout_error  ==> 没有上线设备
         """
         data = {
-          'username': stu_id,
-          'password': pwd,
-          'drop': '0',
-          'type': '1',
-          'n': '1'
+            'username': stu_id,
+            'password': pwd,
+            'drop': '0',
+            'type': '1',
+            'n': '1'
         }
         response = requests.post('http://192.0.0.6/cgi-bin/force_logout', headers=headers, data=data, verify=False)
         return ResultData.match(response.text)
 
 
-account = "22151221"
+# ====================================== 配置上网信息 ========================================
+account = ""
 pwd = "zjucst"
+# -------------------------------------- 配置上网信息 --------------------------------------
 
 if __name__ == "__main__":
-    # 账号池有两种方式维护： 
+    # 账号池有两种方式维护：
     #   1.账号信息放在配套的本地配置文件中==>随机碰撞找到空闲账号
     #   2.账号信息放在服务器上，通过http请求空闲账号==>通过服务器管控，登出时需要反馈给服务器
     # 如果没有空闲账号，则强迫登录自己账号的设备下线，使自己上线
     f_name = "account.json"
-
     if account == "" or pwd == "":
         if not os.path.exists(f_name):
             with open(f_name, "w") as f:
-                account, pwd = input("请输入账号, 密码").split()
+                account, pwd = input("请输入账号, 密码：").split()
                 json.dump({"account": account, "password": pwd}, f)
         else:
             with open(f_name, "r") as f:
                 d = json.load(f)
                 account, pwd = d.get("account"), d.get("password")
-    
-    # 登录前把其他设备下线
     res = ZJUOnline.logout(account, pwd)
-    res = ZJUOnline.login(account, pwd)
-    print(res)
+    if res.code != 203:
+        print(res)
+    # 如果下线了其他设备, 需要等待1分钟才能重新上线, 所以得等待重试
+    res.code = 400
+    while res.code != 200:
+        res = ZJUOnline.login(account, pwd)
+        print(res)
+        if res.code != 200:
+            print("该账号处于上网设备更换冷却期, 上网重试中...")
+            time.sleep(5)
