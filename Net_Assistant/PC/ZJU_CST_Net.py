@@ -2,6 +2,7 @@ import requests
 import hashlib
 import json
 import os
+import time
 
 headers = {
     'Connection': 'keep-alive',
@@ -44,9 +45,11 @@ class ResultData:
         elif msg == "online_num_error":
             return ResultData(msg="登录失败, 在线设备超时", code=400)
         elif msg == "username_error":
-            return ResultData(msg="登录失败, 账号密码错误", code=400)
+            return ResultData(msg="登录失败, 账号错误", code=500)
+        elif msg == "password_error":
+            return ResultData(msg="登录失败, 密码错误", code=500)
         else:
-            return ResultData(msg="未知消息类型", code=400)
+            return ResultData(msg="未知消息类型, {}".format(msg), code=400)
 
     def to_json(self):
         return {"msg": self.msg, "code": self.code}
@@ -116,7 +119,7 @@ if __name__ == "__main__":
         print(res)
     # 如果下线了其他设备, 需要等待1分钟才能重新上线, 所以得等待重试
     res.code = 400
-    while res.code != 200:
+    while res.code != 200 and res.code != 500 :
         res = ZJUOnline.login(account, pwd)
         print(res)
         if res.code != 200:
