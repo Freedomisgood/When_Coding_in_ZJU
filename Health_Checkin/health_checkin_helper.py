@@ -4,6 +4,7 @@ import json
 import datetime
 import time
 import os
+import random
 
 
 class LoginError(Exception):
@@ -48,9 +49,10 @@ class ZJULogin(object):
     BASE_URL = "https://healthreport.zju.edu.cn/ncov/wap/default/index"
     LOGIN_URL = "https://zjuam.zju.edu.cn/cas/login?service=http%3A%2F%2Fservice.zju.edu.cn%2F"
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, delay_run=False):
         self.username = username
         self.password = password
+        self.delay_run = delay_run
         self.sess = requests.Session()
 
     def login(self):
@@ -258,10 +260,13 @@ class HealthCheckInHelper(ZJULogin):
         }
         response = self.sess.post('https://healthreport.zju.edu.cn/ncov/wap/default/save', data=data,
                                   headers=self.headers)
-        print(response.text)
-        return take_out_json(response.text)
+        return response.json()
 
     def run(self):
+        print("正在为{}健康打卡".format(self.username))
+        if self.delay_run:
+            # 确保定时脚本执行时间不太一致
+            time.sleep(random.randint(0, 360))
         # 拿到Cookies和headers
         self.login()
         # 拿取eai-sess的cookies信息
@@ -273,12 +278,13 @@ class HealthCheckInHelper(ZJULogin):
         location = {'info': 'LOCATE_SUCCESS', 'status': 1, 'lng': '121.63529', 'lat': '29.89154'}
         geo_info = self.get_geo_info(location)
         # print(geo_info)
-        self.take_in(geo_info)
+        res = self.take_in(geo_info)
+        print(res)
 
 
 if __name__ == '__main__':
     f_name = "account.json"
-    # 填写要自动打卡的：账号 密码
+    # 填写要自动打卡的：账号 密码, 然后自己实现循环即可帮多人打卡
     # aps = [("<username>", "<password>")]
     account = ""
     pwd = ""
@@ -292,5 +298,5 @@ if __name__ == '__main__':
                 d = json.load(f)
                 account, pwd = d.get("account"), d.get("password")
 
-    s = HealthCheckInHelper(account, pwd)
+    s = HealthCheckInHelper(account, pwd, delay_run=True)
     s.run()
