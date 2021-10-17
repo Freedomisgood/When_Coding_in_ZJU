@@ -1,0 +1,56 @@
+name: Build and Publish health_checkin_helper
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: health_checkin_helper_all
+    runs-on: windows-latest       # ubuntu-latest 包主要打给windows使用
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.9.1
+
+      - name: install requirements
+        run: pip install requests pyinstaller
+
+      - name: Freeze2exe
+        run: |
+          cd ./Health_Checkin
+          mkdir artifacts
+          pyinstaller -i ./src/bitbug_favicon.ico -F ./health_checkin_helper_cst.py
+          mv ./dist/health_checkin_helper_cst.exe ./artifacts
+          pyinstaller -i ./src/bitbug_favicon.ico -F ./health_checkin_helper_all.py
+          mv ./dist/health_checkin_helper_all.exe ./artifacts
+
+      - name: Create zip
+        uses: ihiroky/archive-action@v1
+        with:
+          root_dir: ./Health_Checkin/artifacts
+          file_path: ./Health_Checkin/artifacts/health_checkin_helper.zip
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: artifacts
+          path: ./Health_Checkin/artifacts
+
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Upload gzip file to release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: 浙大健康打卡助手
+          files: './Health_Checkin/artifacts/**'
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.TOKEN }}

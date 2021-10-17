@@ -10,9 +10,30 @@ import random
 f_name = "account.json"
 
 
+# ▲.在这里设置推送pushplus!
+def push2pushplus(token="", content=""):
+    """
+    推送消息到pushplus
+    """
+    if token == '':
+        print("[注意] 未提供token，不进行pushplus推送！")
+    else:
+        server_url = f"http://www.pushplus.plus/send"
+        params = {
+            "token": token,
+            "title": 'ZJU钉钉健康打卡',
+            "content": content
+        }
+
+        response = requests.get(server_url, params=params)
+        json_data = response.json()
+        print(json_data)
+
+
 class LoginError(Exception):
     """Login Exception"""
     pass
+
 
 class IPLocationError(Exception):
     """IPLocationError Exception"""
@@ -156,12 +177,12 @@ class HealthCheckInHelper(ZJULogin):
         address_component = geo_info.get("regeocode").get("addressComponent")
         if not formatted_address or not address_component: return
 
-        # 获得id和uid参数
+        # 获得id和uid参数-->新版接口里不需要这两个参数了
         res = self.sess.get(self.BASE_URL, headers=self.headers)
-        html = res.content.decode()
-        new_info_tmp = json.loads(re.findall(r'def = ({[^\n]+})', html)[0])
-        new_id = new_info_tmp['id']
-        new_uid = new_info_tmp['uid']
+        # html = res.content.decode()
+        # new_info_tmp = json.loads(re.findall(r'def = ({[^\n]+})', html)[0])
+        # new_id = new_info_tmp['id']
+        # new_uid = new_info_tmp['uid']
         # 拼凑geo信息
         lng, lat = address_component.get("streetNumber").get("location").split(",")
         geo_api_info_dict = {"type": "complete", "info": "SUCCESS", "status": 1, "cEa": "jsonp_859544_",
@@ -250,13 +271,13 @@ class HealthCheckInHelper(ZJULogin):
             # 日期
             'date': get_date(),
             # uid每个用户不一致
-            'uid': new_uid,
+            # 'uid': new_uid,
             'created': round(time.time()),
             'szsqsfybl': '0',
             'sfygtjzzfj': '0',
             'gtjzzfjsj': '',
             # id每个用户不一致
-            'id': new_id,
+            # 'id': new_id,
             'ismoved': '0',
             'zgfx14rfhsj': '',
             'jcqzrq': '',
@@ -273,7 +294,7 @@ class HealthCheckInHelper(ZJULogin):
         print("正在为{}健康打卡".format(self.username))
         if self.delay_run:
             # 确保定时脚本执行时间不太一致
-            time.sleep(random.randint(0, 360))
+            time.sleep(random.randint(0, 180))
         # 拿到Cookies和headers
         self.login()
         # 拿取eai-sess的cookies信息
@@ -296,13 +317,16 @@ class HealthCheckInHelper(ZJULogin):
                     print("第一次使用, 通过IP定位, 将定位信息缓存于文件account.json中")
         else:
             location = json_data.get("location")
-            print("获得：", location)
+            print("获得缓存IP定位数据：", location)
         geo_info = self.get_geo_info(location)
         # 打印输出通过IP定位获得的定位信息, 在挂服务器运行之前一定要确认是在想要的位置(在...校区内)
         # 如果定位不准, 通过手动提供更精确的经纬度坐标
-        print(geo_info)
-        res = self.take_in(geo_info)
-        print(res)
+        # print(geo_info)
+        try:
+            res = self.take_in(geo_info)
+            print(res)
+        except Exception as e:  # 失败消息推送
+            push2pushplus("打卡失败, {}".format(e))
 
 
 if __name__ == '__main__':
