@@ -8,7 +8,13 @@ on:
 jobs:
   release:
     name: health_checkin_helper_all
-    runs-on: windows-latest       # ubuntu-latest 包主要打给windows使用
+#    runs-on: windows-latest       # ubuntu-latest 包主要打给windows使用
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-latest, windows-latest ]
 
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +40,7 @@ jobs:
         uses: ihiroky/archive-action@v1
         with:
           root_dir: ./Health_Checkin/artifacts
-          file_path: ./Health_Checkin/artifacts/health_checkin_helper.zip
+          file_path: ./Health_Checkin/artifacts/health_checkin_helper_${{ matrix.os }}.zip
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.4
