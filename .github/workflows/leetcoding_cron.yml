@@ -2,7 +2,7 @@ name: Leetcoding every day
 
 on:
   schedule:
-  - cron: "0 16 * * *"
+  - cron: "56 15 * * *"
   workflow_dispatch:
 
 
