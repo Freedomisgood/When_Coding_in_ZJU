@@ -8,13 +8,13 @@ on:
 jobs:
   release:
     name: health_checkin_helper_all
-#    runs-on: windows-latest       # ubuntu-latest 包主要打给windows使用
+#    runs-on: windows-latest       # 包主要打给windows使用
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest ]
 
     steps:
       - uses: actions/checkout@v2
@@ -32,9 +32,8 @@ jobs:
           cd ./Health_Checkin
           mkdir artifacts
           pyinstaller -i ./src/bitbug_favicon.ico -F ./health_checkin_helper_cst.py
-          mv ./dist/health_checkin_helper_cst.exe ./artifacts
           pyinstaller -i ./src/bitbug_favicon.ico -F ./health_checkin_helper_all.py
-          mv ./dist/health_checkin_helper_all.exe ./artifacts
+          mv ./dist/* ./artifacts
 
       - name: Create zip
         uses: ihiroky/archive-action@v1
