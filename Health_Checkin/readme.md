@@ -33,12 +33,8 @@
 
 5. 将脚本和配置文件(account.json)放在服务器上cron定时执行
 
-## 下载地址：
-
-- 蓝奏云下载exe地址：https://wwe.lanzoui.com/iDrkRu5y4dg （地址为浙软宁波校区）
-- 【推荐】DownGit下载仓库当前文件夹文件：http://tool.mkblog.cn/downgit/#/home, 直接下载health_checkin_helper.py也可以
-
 ## 更新日志：
 - 2021年9月19日: 执行run中增加随机数延时，以实现每次打卡时间不同。
 - 2021年9月17日: Done V1~
 - 2021年10月17日：打卡接口数据有所调整，不再需要uid和id参数，因此在正则匹配上删除了这两个参数
+- 2021年12月5日: 紫金港有疫情情况, 表单参数有所改变

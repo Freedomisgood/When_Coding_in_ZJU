@@ -9,3 +9,4 @@
 
 附：Github没有提供文件夹的下载方式，所以可以通过[DownGit](https://zhoudaxiaa.gitee.io/downgit/#/home)下载某个文件或者文件夹
 
+![Stargazers over time](https://starchart.cc/Freedomisgood/When_Coding_in_ZJU.svg)
