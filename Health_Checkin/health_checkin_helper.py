@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 import random
 import re
 import time
@@ -60,7 +59,7 @@ def take_out_json(content):
     """
     从字符串jsonp中提取json数据
     """
-    s = re.search("^jsonp_\d+_\((.*?)\);?$", content)
+    s = re.search("^jsonp_\d+_\((.*?)\);?$", content, re.S)
     return json.loads(s.group(1) if s else "{}")
 
 
@@ -126,40 +125,7 @@ class HealthCheckInHelper(ZJULogin):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
     }
-
     REDIRECT_URL = "https://zjuam.zju.edu.cn/cas/login?service=https%3A%2F%2Fhealthreport.zju.edu.cn%2Fa_zju%2Fapi%2Fsso%2Findex%3Fredirect%3Dhttps%253A%252F%252Fhealthreport.zju.edu.cn%252Fncov%252Fwap%252Fdefault%252Findex%26from%3Dwap"
-
-    @DeprecationWarning
-    def get_ip_location(self):
-        headers = {
-            'authority': 'webapi.amap.com',
-            'pragma': 'no-cache',
-            'cache-control': 'no-cache',
-            'sec-ch-ua': '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-            'sec-ch-ua-mobile': '?0',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
-            'accept': '*/*',
-            'sec-fetch-site': 'cross-site',
-            'sec-fetch-mode': 'no-cors',
-            'sec-fetch-dest': 'script',
-            'referer': 'https://healthreport.zju.edu.cn/',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'cookie': 'isg=BIaGbUMSG7BxFM4x941hm4D913wI58qhRFwZi3CvdKmEcyaN2nUJsfYKT6-_W8K5',
-        }
-
-        params = (
-            ('key', '729923f88542d91590470f613adb27b5'),
-            ('callback', 'jsonp_859544_'),
-            ('platform', 'JS'),
-            ('logversion', '2.0'),
-            ('appname', 'https://healthreport.zju.edu.cn/ncov/wap/default/index'),
-            ('csid', '17F714D6-756D-49E4-96F2-B31F04B14A5A'),
-            ('sdkversion', '1.4.16'),
-        )
-        response = self.sess.get(
-            'https://webapi.amap.com/maps/ipLocation?key=729923f88542d91590470f613adb27b5&callback=jsonp_859544_&platform=JS&logversion=2.0&appname=https%3A%2F%2Fhealthreport.zju.edu.cn%2Fncov%2Fwap%2Fdefault%2Findex&csid=17F714D6-756D-49E4-96F2-B31F04B14A5A&sdkversion=1.4.16',
-            headers=headers, params=params)
-        return take_out_json(response.text)
 
     def get_geo_info(self, location: dict):
         params = (
@@ -249,57 +215,48 @@ class HealthCheckInHelper(ZJULogin):
                                   headers=self.headers)
         return response.json()
 
-    def run(self):
+    def run(self, lng, lat, campus, delay_run=False):
+        """
+        Args:
+            'lng': '121.63529', 'lat': '29.89154'
+            delay_run: 是否延迟运行
+            lng: 经度
+            lat: 维度
+            campus: 校区, 如玉泉校区
+        Returns:
+        """
         print("正在为{}健康打卡".format(self.username))
-        if self.delay_run:
+        if delay_run:
             # 确保定时脚本执行时间不太一致
             time.sleep(random.randint(0, 360))
         # 拿到Cookies和headers
         self.login()
         # 拿取eai-sess的cookies信息
         self.sess.get(self.REDIRECT_URL)
-        # 由于IP定位放到服务器上运行后会是服务器的IP定位， 因此这边手动执行后获得IP location后直接写死
-        # 如果是其他校区可以在本地运行下get_ip_location()后拿到location数据写死
-        # location = self.get_ip_location()
-        # print(location)
-
-        # 软院位置得到的IP定位, 如果不是软院的, 则执行上面代码后代替这边的location位置
-        location = {'info': 'LOCATE_SUCCESS', 'status': 1, 'lng': '121.63529', 'lat': '29.89154'}
+        location = {'info': 'LOCATE_SUCCESS', 'status': 1, 'lng': lng, 'lat': lat}
         geo_info = self.get_geo_info(location)
         # print(geo_info)
         try:
-            res = self.take_in(geo_info, campus="宁波校区")
+            res = self.take_in(geo_info, campus=campus)
             print(res)
         except Exception as e:  # 失败消息推送
             push2pushplus("打卡失败, {}".format(e))
 
 
+def _init_parser():
+    """获得CLI参数"""
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser("自动打卡脚本v2")
+    parser.add_argument("-a", "--account", type=str, required=True, help="统一认证平台账号")
+    parser.add_argument("-p", "--password", type=str, required=True, help="统一认证平台密码")
+    parser.add_argument("-lng", "--longitude", type=str, required=True, help="定位经度")
+    parser.add_argument("-lat", "--latitude", type=str, required=True, help="定位纬度")
+    parser.add_argument("-c", "--campus", type=str, required=True, help="校区")
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    f_name = "account.json"
-    # 填写要自动打卡的：账号 密码, 然后自己实现循环即可帮多人打卡
-    # aps = [("<username>", "<password>")]
-    account = ""
-    pwd = ""
-    if account == "" or pwd == "":
-        if not os.path.exists(f_name):
-            with open(f_name, "w") as f:
-                account, pwd = input("请输入账号, 密码：").split()
-                json.dump({"account": account, "password": pwd}, f)
-        else:
-            f = open(f_name, "r")
-            try:
-                d = json.load(f)
-            except json.decoder.JSONDecodeError:
-                f.close()
-                import os
-
-                os.remove(f_name)
-                print("删除错误Json文件")
-                with open(f_name, "w") as f:
-                    account, pwd = input("请输入账号, 密码：").split()
-                    json.dump({"account": account, "password": pwd}, f)
-            else:
-                account, pwd = d.get("account"), d.get("password")
-
-    s = HealthCheckInHelper(account, pwd, delay_run=False)
-    s.run()
+    args = _init_parser()
+    s = HealthCheckInHelper(args.account, args.password)
+    s.run(lng=args.longitude, lat=args.latitude, campus=args.campus, delay_run=False)

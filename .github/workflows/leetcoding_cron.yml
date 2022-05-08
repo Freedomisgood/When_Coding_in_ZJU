@@ -2,7 +2,8 @@ name: Leetcoding every day
 
 on:
   schedule:
-  - cron: "56 15 * * *"
+  # 8个小时的时差
+  - cron: "58 15 * * *"
   workflow_dispatch:
 
 

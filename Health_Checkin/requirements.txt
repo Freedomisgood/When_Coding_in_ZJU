@@ -1,0 +1,12 @@
+certifi==2021.10.8
+charset-normalizer==2.0.12
+ddddocr==1.4.3
+flatbuffers==2.0
+idna==3.3
+numpy==1.19.5
+onnxruntime==1.10.0
+opencv-python==4.5.5.64
+Pillow==8.4.0
+protobuf==3.19.4
+requests==2.27.1
+urllib3==1.26.9

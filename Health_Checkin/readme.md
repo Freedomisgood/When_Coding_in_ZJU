@@ -1,6 +1,7 @@
 # Health_Checkin_Helper
 
 > 健康打卡助手: 将脚本部署于服务器上后，使用cron启动定时任务，每日打卡。
+> Python < 3.9
 
 ## 脚本说明：
 
@@ -15,25 +16,12 @@
 
 ## 设置打卡位置说明：
 
-> 目前默认设置的location = {'info': 'LOCATE_SUCCESS', 'status': 1, 'lng': '121.63529', 'lat': '29.89154'}是浙大宁波软院的位置。要想修改成其他位置，需要如下操作【第一次需要手动本机运行获得想要设置的IP信息，之后就可以丢到服务器上运行了】
-
-1. 下载health_checkin_helper.py脚本
-
-2. 法一【推荐】
-
-   - 将写死的`location = {'info': 'LOCATE_SUCCESS', 'status': 1, 'lng': '121.63529', 'lat': '29.89154'}`删除，并将注释的`location = get_ip_location()`和`print(location)`打开注释，然后运行一遍程序，得到自己的IP location信息
-
-   法二【非常不推荐】
-
-   - 自己百度IP定位，明确经纬度信息和填入location字典中，注：这个精度得很高，小数点后8位以上
-
-3. 将得到的IP location信息（返回{...}的json数据）代替写死的浙软location信息
-
-4. 重新运行程序测试
-
-5. 将脚本和配置文件(account.json)放在服务器上cron定时执行
+1. 运行 health_checkin_helper.py 脚本: `-a * -p * -lng 121.63529 -lat 29.89154 -c 宁波校区`
+   - 如果不清楚参数设置可以运行`python health_checkin_helper.py --help`
+2. 将脚本放在服务器上cron定时执行: `05 12 * * * python /home/mrli/dscripts/app/zju/zju_health_checkin.py -a * -p * -lng 121.63529 -lat 29.89154 -c 宁波校区`
 
 ## 更新日志：
+- 2022年5月8日: 增加验证码识别, 使用ddddocr库完成, 由于onnruntime需要<Py3.9, 所以现在只支持Python3-3.9
 - 2021年9月19日: 执行run中增加随机数延时，以实现每次打卡时间不同。
 - 2021年9月17日: Done V1~
 - 2021年10月17日：打卡接口数据有所调整，不再需要uid和id参数，因此在正则匹配上删除了这两个参数
