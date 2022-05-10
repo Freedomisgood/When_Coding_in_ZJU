@@ -7,6 +7,7 @@
 
 `pip install -r requirements.txt`
 
+注: 由于ddddocr用了不少机器学习的库, 还挺大的, 如果Python比较熟，可以创建虚拟环境使用`virtualenv daka`, `pipenv shell`
 ## 脚本说明：
 
 本工程提供两个脚本二选一使用：
@@ -20,9 +21,19 @@
 
 ## 设置打卡位置说明：
 
-1. 运行 health_checkin_helper.py 脚本: `-a * -p * -lng 121.63529 -lat 29.89154 -c 宁波校区`
-   - 如果不清楚参数设置可以运行`python health_checkin_helper.py --help`
+1. 运行 health_checkin_helper.py 脚本: `python health_checkin_helper.py -a * -p * -lng 121.63529 -lat 29.89154 -c 宁波校区`
+   - 如果不清楚参数设置可以运行`python health_checkin_helper.py --help`, 查看参数帮助
 2. 将脚本放在服务器上cron定时执行: `05 12 * * * python /home/mrli/dscripts/app/zju/zju_health_checkin.py -a * -p * -lng 121.63529 -lat 29.89154 -c 宁波校区`
+
+注: 如果使用了`pipenv`, 定时任务为: `30 10 * * * bash /home/mrli/dscripts/app/zju/start.sh` 
+```bash
+# !/usr/bin/bash
+# start.sh
+set -e
+cd `dirname $0`
+pipenv run python health_checkin_helper.py -a * -p * -lng 121.63529 -lat 29.89154 -c 宁波校区
+```
+
 
 ## 更新日志：
 - 2022年5月8日: 增加验证码识别, 使用ddddocr库完成, 由于onnruntime需要<Py3.9, 所以现在只支持Python3-3.9

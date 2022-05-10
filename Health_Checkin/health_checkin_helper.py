@@ -13,10 +13,10 @@ ocr = ddddocr.DdddOcr(det=False, ocr=True)
 def cope_with_captcha(sess):
     """识别验证码"""
     response = sess.get('https://healthreport.zju.edu.cn/ncov/wap/default/code')
-    # img_bytes = response.content
+    img_bytes = response.content
     # with open("captcha.png", "wb") as f:
     #     f.write(img_bytes)
-    res = ocr.classification(response.content)
+    res = ocr.classification(img_bytes)
     return res.upper()
 
 

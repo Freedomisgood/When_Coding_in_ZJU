@@ -2,6 +2,7 @@ name: Leetcoding every day
 
 on:
   schedule:
+  # 由于8小时时差的原因, 15+8 == 23.58左右, 加上延迟和误差, 大约是在00:05左右执行完成
   - cron: "58 15 * * *"
   workflow_dispatch:
 
@@ -23,4 +24,9 @@ jobs:
       run: pip install requests
 
     - name: Run Scripts
+      env:
+        PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+        SERVERCHAN_TOKEN: ${{ secrets.SERVERCHAN_TOKEN }}
+        DING_ACCESS_TOKEN: ${{ secrets.DING_ACCESS_TOKEN }}
+        DING_SECRET:  ${{ secrets.DING_SECRET }}
       run: python ./LeetCoding/leetcoding.py
